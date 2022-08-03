@@ -7,7 +7,6 @@ This information is used compile the image set configuration file oc-mirror reli
 """
 
 from dataclasses import dataclass
-from gettext import install
 from kubernetes.dynamic.exceptions import NotFoundError
 from kubernetes.client.rest import ApiException
 from kubernetes.config.config_exception import ConfigException
@@ -231,8 +230,7 @@ def get_catalog_data(client: dynamic.DynamicClient) -> dict:
                              (installplan.metadata.name, installed_csv.metadata.name))
 
                 if installplan.status.bundleLookups is not None:
-                    catalog_refs = [
-                        catalogRef for catalogRef in installplan.status.bundleLookups if catalogRef["identifier"] == csv_name]
+                    catalog_refs = [catalogRef for catalogRef in installplan.status.bundleLookups if catalogRef["identifier"] == csv_name]
 
                     if catalog_refs is not None and len(catalog_refs) == 1:
                         catalog_ref = catalog_refs[0].catalogSourceRef
@@ -278,7 +276,7 @@ def transform_op_to_dict(operator: InstalledOperator) -> dict:
 
     return d
 
-def create_imageset_config(platformData, catalogData):
+def create_imageset_config(platformData, catalogData) -> dict:
     imagesetconfig_manifest = {
         "apiVersion": "mirror.openshift.io/v1alpha2",
         "kind": "ImageSetConfiguration",
@@ -307,13 +305,11 @@ def create_imageset_config(platformData, catalogData):
                 "catalog": catalog_image,
                 "packages": list(map(transform_op_to_dict, installed_operators))
             })
-           
-
 
     return imagesetconfig_manifest
 
 
-def determine_kube_context(context):
+def determine_kube_context(context) -> string:
     try:
         logger.debug("Attempting to load contexts from " +
                      config.KUBE_CONFIG_DEFAULT_LOCATION)
@@ -354,6 +350,7 @@ def determine_kube_context(context):
 @click.option('--debug', is_flag=True, default=False, help='Turn on verbose logging')
 @click.option('--ignore-insecure', is_flag=True, default=False, help='Suppress warnings about connecting to an API server with an untrusted certificate.')
 def main(context, platform, operators, debug, ignore_insecure):
+
     logger.setLevel(level=logging.DEBUG if debug else logging.INFO)
 
     if ignore_insecure:

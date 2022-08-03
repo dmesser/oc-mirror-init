@@ -375,6 +375,10 @@ def main(context, platform, operators, debug, ignore_insecure):
         if e.status == 401:
             logger.fatal("Failed to login to cluster with reason: %s. Check your credentials." % e.reason)
             sys.exit(1)
+    except urllib3.exceptions.RequestError as e:
+            logger.fatal("Failed to contact the cluster with reason: %s. Check your Kubeconfig file." % e.reason)
+            sys.exit(1)
+    
 
     if not is_compatible_platform():
         logger.fatal("The target cluster does not appear to be an OpenShift or OKD cluster. This tool is intended to only work with these two types of Kubernetes distribution.")
